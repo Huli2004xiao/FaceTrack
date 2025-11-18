@@ -2,22 +2,63 @@
 <html lang="zh-CN">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>人脸坐标检测</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>人脸坐标检测（马卡龙主题 — 含暗色模式）</title>
     <style>
+        /* ---------- 全局重置 ---------- */
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
+        }
+
+        :root {
+            --glass-bg: rgba(255, 255, 255, 0.6);
+            --text: #32424a;
+            --muted: #7a8a92;
+            --card: rgba(255, 255, 255, 0.8);
+            --accent-1: #ffdce6;
+            /* 轻粉 */
+            --accent-2: #ddf7f3;
+            /* 浅青 */
+            --accent-3: #fff7d9;
+            /* 浅黄 */
+            --accent-4: #e9e7ff;
+            /* 浅紫 */
+            --glass-border: rgba(255, 255, 255, 0.55);
+            --shadow: 0 10px 30px rgba(38, 50, 56, 0.08);
+            --focus: rgba(61, 132, 255, 0.12);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --glass-bg: rgba(22, 26, 28, 0.55);
+                --text: #e6eef2;
+                --muted: #b7c2c7;
+                --card: rgba(24, 28, 30, 0.6);
+                --accent-1: #4b2b36;
+                /* 深色版对应的色相区域 */
+                --accent-2: #1f3f3b;
+                --accent-3: #3b341f;
+                --accent-4: #2f2a3f;
+                --glass-border: rgba(255, 255, 255, 0.04);
+                --shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+                --focus: rgba(61, 132, 255, 0.12);
+            }
+
+            body {
+                background: linear-gradient(135deg, #0f1720 0%, #071018 100%);
+            }
         }
 
         body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
-            color: white;
+            font-family: Inter, -apple-system, "Helvetica Neue", Arial;
+            -webkit-font-smoothing: antialiased;
+            background: linear-gradient(135deg, var(--accent-1) 0%, var(--accent-2) 50%, var(--accent-3) 100%);
+            color: var(--text);
             min-height: 100vh;
-            padding: 20px;
+            padding: 28px;
         }
 
         .container {
@@ -26,245 +67,197 @@
         }
 
         header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: grid;
+            gap: 14px;
+            align-items: center;
+            padding: 18px;
+            border-radius: 16px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.5));
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(8px) saturate(120%);
+        }
+
+        header .title {
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
 
         header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 1.4rem;
+            letter-spacing: 0.2px;
         }
 
-        .controls {
+        header p {
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .controls-row {
             display: flex;
-            justify-content: center;
-            gap: 15px;
+            gap: 12px;
+            align-items: center;
             flex-wrap: wrap;
-            margin-bottom: 20px;
         }
 
-        .camera-selector {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 20px;
+        .camera-selector select {
+            padding: 10px 14px;
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            background: var(--card);
+            color: var(--text);
+            min-width: 220px;
+            outline: none;
         }
 
-        select {
-            padding: 10px 15px;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            backdrop-filter: blur(10px);
-            font-size: 16px;
-            width: 300px;
-        }
-
-        select option {
-            background: rgba(0, 0, 0, 0.8);
-            color: white;
-        }
-
-        button {
-            padding: 12px 24px;
+        .btn {
+            padding: 10px 16px;
+            border-radius: 12px;
             border: none;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
         }
 
-        button:hover:not(:disabled) {
-            background: rgba(255, 255, 255, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        button:disabled {
+        .btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        #startBtn {
-            background: rgba(76, 175, 80, 0.7);
+        .btn-start {
+            background: linear-gradient(180deg, #7bd389, #5dbb6f);
+            color: white;
         }
 
-        #stopBtn {
-            background: rgba(244, 67, 54, 0.7);
+        .btn-stop {
+            background: linear-gradient(180deg, #ff9aa2, #ff6b78);
+            color: white;
         }
 
-        #connectBtn {
-            background: rgba(33, 150, 243, 0.7);
+        .btn-esp {
+            background: linear-gradient(180deg, #7fc7ff, #4a9fff);
+            color: white;
+        }
+
+        .content {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 18px;
+        }
+
+        .card {
+            border-radius: 14px;
+            padding: 12px;
+            background: var(--card);
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(6px);
+        }
+
+        .camera-container {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            min-height: 360px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        video#video {
+            display: block;
+            width: 100%;
+            height: auto;
+            max-height: 720px;
+            background: #000;
+        }
+
+        canvas#canvas {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .output-container h3 {
+            font-size: 1.05rem;
+            margin-bottom: 8px;
+        }
+
+        .coordinates-output {
+            background: transparent;
+            color: var(--text);
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, "Courier New", monospace;
+            max-height: 560px;
+            overflow: auto;
+            padding: 8px;
+            border-radius: 10px;
+        }
+
+        .coordinates-output p {
+            margin-bottom: 8px;
+            color: var(--muted);
         }
 
         .tracking-options {
             display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 10px;
             flex-wrap: wrap;
         }
 
         .tracking-option {
             display: flex;
-            align-items: center;
             gap: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            padding: 10px 15px;
-            border-radius: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            align-items: center;
+            background: rgba(255, 255, 255, 0.5);
+            padding: 8px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
         }
 
         .tracking-option input {
-            width: 18px;
-            height: 18px;
-        }
-
-        .tracking-option label {
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            align-items: start;
-        }
-
-        .camera-container {
-            position: relative;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        #video,
-        #canvas {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        #canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-        }
-
-        .output-container {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 20px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        }
-
-        .output-container h3 {
-            margin-bottom: 20px;
-            font-size: 1.5rem;
-            text-align: center;
-        }
-
-        .coordinates-output {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            min-height: 200px;
-            max-height: 400px;
-            overflow-y: auto;
-            margin-bottom: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-
-        .coordinates-output p {
-            margin-bottom: 8px;
+            width: 16px;
+            height: 16px;
         }
 
         .status {
             display: flex;
             justify-content: space-between;
-            font-size: 14px;
-            opacity: 0.8;
+            gap: 8px;
+            margin-top: 12px;
+            color: var(--muted);
+            font-size: 0.9rem;
         }
 
-        /* 移动端适配 */
-        @media (max-width: 768px) {
+        /* 小屏适配 */
+        @media (max-width: 900px) {
             .content {
                 grid-template-columns: 1fr;
             }
 
-            header h1 {
-                font-size: 2rem;
-            }
-
-            .controls {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .tracking-options {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            button {
-                width: 200px;
-            }
-
-            select {
-                width: 90%;
+            video#video {
+                max-height: 360px;
             }
         }
 
-        /* 滚动条样式 */
-        .coordinates-output::-webkit-scrollbar {
-            width: 6px;
+        /* 小装饰：微交互 focus */
+        select:focus,
+        .btn:focus,
+        .tracking-option input:focus {
+            box-shadow: 0 6px 18px var(--focus);
+            outline: none;
         }
 
-        .coordinates-output::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        .coordinates-output::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 3px;
-        }
-
-        .face-coordinates {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.05);
-        }
-
-        .face-coordinates p {
-            margin-bottom: 5px;
-        }
-
-        hr {
-            border: none;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.2);
-            margin: 10px 0;
+        /* 统一的面板色块（浅马卡龙边） */
+        .badge {
+            font-size: 0.85rem;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.55);
+            border: 1px solid rgba(0, 0, 0, 0.03);
         }
     </style>
 </head>
@@ -272,54 +265,62 @@
 <body>
     <div class="container">
         <header>
-            <h1>人脸坐标检测系统</h1>
-            <div class="camera-selector">
-                <select id="cameraSelect">
-                    <option value="">选择摄像头...</option>
-                </select>
+            <div class="title">
+                <div class="logo"
+                    style="width:44px;height:44px;border-radius:10px;background:linear-gradient(180deg,var(--accent-4),var(--accent-2));box-shadow:0 6px 14px rgba(0,0,0,0.06)">
+                </div>
+                <div>
+                    <h1>人脸坐标检测系统 — 马卡龙样式</h1>
+                    <p>支持摄像头选择、可视化边界框与坐标输出，自动适配暗色模式</p>
+                </div>
             </div>
+
+            <div class="controls-row">
+                <div class="camera-selector">
+                    <select id="cameraSelect">
+                        <option value="">自动选择摄像头...</option>
+                    </select>
+                </div>
+
+                <button id="startBtn" class="btn btn-start">开始检测</button>
+                <button id="stopBtn" class="btn btn-stop" disabled>停止检测</button>
+                <button id="connectBtn" class="btn btn-esp">连接 ESP32</button>
+
+                <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+                    <div class="badge">预览分辨率：640×480</div>
+                </div>
+            </div>
+
             <div class="tracking-options">
-                <div class="tracking-option">
-                    <input type="checkbox" id="trackBoundingBox" checked>
-                    <label for="trackBoundingBox">追踪边界框</label>
-                </div>
-                <div class="tracking-option">
-                    <input type="checkbox" id="trackPupils" checked>
-                    <label for="trackPupils">追踪瞳孔位置</label>
-                </div>
-                <div class="tracking-option">
-                    <input type="checkbox" id="trackAllLandmarks">
-                    <label for="trackAllLandmarks">追踪所有特征点</label>
-                </div>
+                <label class="tracking-option"><input type="checkbox" id="trackBoundingBox" checked>
+                    <span>追踪边界框</span></label>
+                <label class="tracking-option"><input type="checkbox" id="trackPupils" checked>
+                    <span>追踪瞳孔</span></label>
+                <label class="tracking-option"><input type="checkbox" id="trackAllLandmarks"> <span>所有特征点</span></label>
             </div>
-            <div class="controls">
-                <button id="startBtn">开始检测</button>
-                <button id="stopBtn" disabled>停止检测</button>
-                <button id="connectBtn">连接ESP32</button>
-            </div>
+
         </header>
 
         <div class="content">
-            <div class="camera-container">
-                <video id="video" playsinline></video>
+            <div class="card camera-container">
+                <video id="video" playsinline autoplay muted></video>
                 <canvas id="canvas"></canvas>
             </div>
 
-            <div class="output-container">
+            <div class="card output-container">
                 <h3>人脸坐标输出</h3>
                 <div id="coordinatesOutput" class="coordinates-output">
                     <p>等待检测...</p>
                 </div>
                 <div class="status">
-                    <span id="statusText">状态: 未开始</span>
+                    <span id="statusText">状态: 未就绪</span>
                     <span id="connectionStatus">ESP32: 未连接</span>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- MediaPipe CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <!-- MediaPipe -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/face_detection.js"></script>
@@ -327,22 +328,14 @@
     <script>
         class FaceDetectionApp {
             constructor() {
+                // core
                 this.faceDetection = null;
-                this.camera = null;
                 this.isRunning = false;
-                this.wsConnection = null;
-                this.isConnected = false;
-                this.cameras = [];
-                this.selectedCameraId = null;
-
-                // 追踪选项
-                this.trackBoundingBox = true;
-                this.trackPupils = true;
-                this.trackAllLandmarks = false;
-
                 this.videoElement = document.getElementById('video');
                 this.canvasElement = document.getElementById('canvas');
                 this.canvasCtx = this.canvasElement.getContext('2d');
+
+                // elements
                 this.startBtn = document.getElementById('startBtn');
                 this.stopBtn = document.getElementById('stopBtn');
                 this.connectBtn = document.getElementById('connectBtn');
@@ -351,505 +344,293 @@
                 this.statusText = document.getElementById('statusText');
                 this.connectionStatus = document.getElementById('connectionStatus');
 
-                // 追踪选项元素
+                // tracking options
                 this.trackBoundingBoxCheckbox = document.getElementById('trackBoundingBox');
                 this.trackPupilsCheckbox = document.getElementById('trackPupils');
                 this.trackAllLandmarksCheckbox = document.getElementById('trackAllLandmarks');
 
-                this.initializeEventListeners();
-                this.initializeFaceDetection();
-                this.loadCameras();
+                this.cameras = [];
+                this.selectedCameraId = null;
+
+                // websocket
+                this.wsConnection = null;
+                this.isConnected = false;
+
+                this.lastResults = null;
+
+                this._rafHandle = null; // animation frame id
+
+                this._bindEvents();
+                this._initFaceDetection();
+                this._loadCameras();
             }
 
-            initializeEventListeners() {
+            _bindEvents() {
                 this.startBtn.addEventListener('click', () => this.startDetection());
                 this.stopBtn.addEventListener('click', () => this.stopDetection());
                 this.connectBtn.addEventListener('click', () => this.connectToESP32());
                 this.cameraSelect.addEventListener('change', (e) => {
-                    this.selectedCameraId = e.target.value;
+                    this.selectedCameraId = e.target.value || null;
                     if (this.isRunning) {
+                        // 立即重启以应用新摄像头
                         this.restartDetection();
                     }
                 });
 
-                // 追踪选项事件监听
-                this.trackBoundingBoxCheckbox.addEventListener('change', (e) => {
-                    this.trackBoundingBox = e.target.checked;
-                    this.updateDetectionMode();
-                });
-
-                this.trackPupilsCheckbox.addEventListener('change', (e) => {
-                    this.trackPupils = e.target.checked;
-                    this.updateDetectionMode();
-                });
-
-                this.trackAllLandmarksCheckbox.addEventListener('change', (e) => {
-                    this.trackAllLandmarks = e.target.checked;
-                    this.updateDetectionMode();
-
-                    // 如果选择追踪所有特征点，自动取消追踪瞳孔（避免重复）
-                    if (this.trackAllLandmarks && this.trackPupils) {
-                        this.trackPupils = false;
+                this.trackBoundingBoxCheckbox.addEventListener('change', () => this._updateDetectionOptions());
+                this.trackPupilsCheckbox.addEventListener('change', () => this._updateDetectionOptions());
+                this.trackAllLandmarksCheckbox.addEventListener('change', () => {
+                    if (this.trackAllLandmarksCheckbox.checked) {
                         this.trackPupilsCheckbox.checked = false;
                     }
+                    this._updateDetectionOptions();
                 });
             }
 
-            updateDetectionMode() {
-                // 根据选择的追踪模式调整检测参数
-                if (this.faceDetection) {
-                    // 如果只追踪边界框，可以降低检测精度以优化性能
-                    if (this.trackBoundingBox && !this.trackPupils && !this.trackAllLandmarks) {
-                        this.faceDetection.setOptions({
-                            model: 'short',
-                            minDetectionConfidence: 0.3  // 降低置信度阈值以提高性能
-                        });
-                    } else {
-                        // 需要更多特征点时使用默认设置
-                        this.faceDetection.setOptions({
-                            model: 'short',
-                            minDetectionConfidence: 0.5
-                        });
-                    }
-                }
-
-                // 如果正在运行，重新绘制当前结果
-                if (this.isRunning && this.lastResults) {
-                    this.onFaceDetectionResults(this.lastResults);
-                }
-            }
-
-            async loadCameras() {
+            async _loadCameras() {
                 try {
-                    // 获取摄像头列表
                     const devices = await navigator.mediaDevices.enumerateDevices();
-                    this.cameras = devices.filter(device => device.kind === 'videoinput');
+                    this.cameras = devices.filter(d => d.kind === 'videoinput');
 
-                    // 清空选择框
-                    this.cameraSelect.innerHTML = '<option value="">选择摄像头...</option>';
-
-                    // 添加摄像头选项
-                    this.cameras.forEach((camera, index) => {
-                        const option = document.createElement('option');
-                        option.value = camera.deviceId;
-                        option.text = camera.label || `摄像头 ${index + 1}`;
-                        this.cameraSelect.appendChild(option);
+                    // populate select
+                    this.cameraSelect.innerHTML = '<option value="">自动选择摄像头...</option>';
+                    this.cameras.forEach((cam, idx) => {
+                        const opt = document.createElement('option');
+                        opt.value = cam.deviceId;
+                        opt.textContent = cam.label || `摄像头 ${idx + 1}`;
+                        this.cameraSelect.appendChild(opt);
                     });
 
-                    // 默认选择第一个摄像头
-                    if (this.cameras.length > 0) {
+                    if (this.cameras.length) {
                         this.selectedCameraId = this.cameras[0].deviceId;
                         this.cameraSelect.value = this.selectedCameraId;
                     }
-
-                } catch (error) {
-                    console.error('获取摄像头列表失败:', error);
+                } catch (err) {
+                    console.warn('获取设备失败', err);
                 }
             }
 
-            async initializeFaceDetection() {
+            async _initFaceDetection() {
                 this.faceDetection = new FaceDetection({
-                    locateFile: (file) => {
-                        return `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`;
-                    }
+                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/face_detection/${file}`
                 });
-
-                this.faceDetection.setOptions({
-                    model: 'short',
-                    minDetectionConfidence: 0.5
-                });
-
-                this.faceDetection.onResults((results) => this.onFaceDetectionResults(results));
-
+                this.faceDetection.setOptions({ model: 'short', minDetectionConfidence: 0.5 });
+                this.faceDetection.onResults((r) => this._onResults(r));
                 this.statusText.textContent = '状态: 就绪';
+            }
+
+            _updateDetectionOptions() {
+                if (!this.faceDetection) return;
+                // 简单示例：调整置信度
+                const onlyBBox = this.trackBoundingBoxCheckbox.checked && !this.trackPupilsCheckbox.checked && !this.trackAllLandmarksCheckbox.checked;
+                this.faceDetection.setOptions({ minDetectionConfidence: onlyBBox ? 0.35 : 0.5 });
+                // 重新绘制
+                if (this.isRunning && this.lastResults) this._onResults(this.lastResults);
             }
 
             async startDetection() {
                 if (this.isRunning) return;
-
                 try {
-                    // 设置canvas尺寸与视频匹配
+                    // 获取流
+                    const constraints = { video: { width: { ideal: 640 }, height: { ideal: 480 } } };
+                    if (this.selectedCameraId) constraints.video.deviceId = { exact: this.selectedCameraId };
+
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    this.videoElement.srcObject = stream;
+                    await new Promise((res) => this.videoElement.onloadedmetadata = res);
+                    this.videoElement.play();
+
+                    // 同步 canvas 大小
                     this.canvasElement.width = this.videoElement.videoWidth || 640;
                     this.canvasElement.height = this.videoElement.videoHeight || 480;
 
-                    // 获取摄像头约束条件
-                    const constraints = {
-                        video: {
-                            width: { ideal: 640 },
-                            height: { ideal: 480 }
-                        }
-                    };
-
-                    // 如果选择了特定摄像头，添加到约束条件
-                    if (this.selectedCameraId) {
-                        constraints.video.deviceId = { exact: this.selectedCameraId };
-                    }
-
-                    // 获取视频流
-                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
-                    this.videoElement.srcObject = stream;
-
-                    // 等待视频加载
-                    await new Promise((resolve) => {
-                        this.videoElement.onloadedmetadata = () => {
-                            resolve();
-                        };
-                    });
-
-                    this.videoElement.play();
-
-                    // 设置摄像头
-                    this.camera = new Camera(this.videoElement, {
-                        onFrame: async () => {
-                            if (this.faceDetection) {
-                                await this.faceDetection.send({ image: this.videoElement });
-                            }
-                        },
-                        width: this.videoElement.videoWidth,
-                        height: this.videoElement.videoHeight
-                    });
-
-                    await this.camera.start();
                     this.isRunning = true;
-
                     this.startBtn.disabled = true;
                     this.stopBtn.disabled = false;
                     this.statusText.textContent = '状态: 检测中...';
 
-                } catch (error) {
-                    console.error('启动摄像头失败:', error);
+                    // 启动循环
+                    const loop = async () => {
+                        if (!this.isRunning) return;
+                        try {
+                            await this.faceDetection.send({ image: this.videoElement });
+                        } catch (e) { console.warn('faceDetection.send error', e); }
+                        this._rafHandle = requestAnimationFrame(loop);
+                    };
+                    this._rafHandle = requestAnimationFrame(loop);
+                } catch (err) {
+                    console.error('启动失败', err);
+                    alert('无法打开摄像头：请检查权限或摄像头是否被占用。');
                     this.statusText.textContent = '状态: 启动失败';
-                    alert('无法访问摄像头，请确保已授予摄像头权限');
                 }
             }
 
-            async restartDetection() {
-                if (this.isRunning) {
-                    this.stopDetection();
-                    // 稍等片刻再重新启动
-                    setTimeout(() => {
-                        this.startDetection();
-                    }, 500);
-                }
+            restartDetection() {
+                this.stopDetection();
+                // 小延迟确保流停止
+                setTimeout(() => this.startDetection(), 300);
             }
 
             stopDetection() {
-                if (this.camera) {
-                    this.camera.stop();
-                    this.camera = null;
-                }
+                this.isRunning = false;
+                if (this._rafHandle) cancelAnimationFrame(this._rafHandle);
 
-                // 停止视频流
                 if (this.videoElement.srcObject) {
-                    this.videoElement.srcObject.getTracks().forEach(track => track.stop());
+                    this.videoElement.srcObject.getTracks().forEach(t => t.stop());
                     this.videoElement.srcObject = null;
                 }
 
-                this.isRunning = false;
                 this.startBtn.disabled = false;
                 this.stopBtn.disabled = true;
                 this.statusText.textContent = '状态: 已停止';
-
-                // 清空画布
                 this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
                 this.coordinatesOutput.innerHTML = '<p>检测已停止</p>';
             }
 
-            onFaceDetectionResults(results) {
-                // 保存结果用于重新绘制
+            _onResults(results) {
                 this.lastResults = results;
+                // 清空画布
+                const ctx = this.canvasCtx;
+                ctx.save();
+                ctx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
 
-                this.canvasCtx.save();
-                this.canvasCtx.clearRect(0, 0, this.canvasElement.width, this.canvasElement.height);
+                // 将视频帧绘制到 canvas（做为背景）
+                try {
+                    ctx.drawImage(results.image, 0, 0, this.canvasElement.width, this.canvasElement.height);
+                } catch (e) { /* 某些浏览器可能抛出跨域错误，但通常不会 */ }
 
-                // 绘制摄像头画面
-                this.canvasCtx.drawImage(
-                    results.image,
-                    0, 0,
-                    this.canvasElement.width,
-                    this.canvasElement.height
-                );
+                let outHTML = '';
 
-                let outputHTML = '';
+                if (results.detections && results.detections.length) {
+                    results.detections.forEach((det, idx) => {
+                        const bbox = det.boundingBox;
+                        const landmarks = det.landmarks || [];
 
-                if (results.detections && results.detections.length > 0) {
-                    results.detections.forEach((detection, index) => {
-                        const landmarks = detection.landmarks;
-
-                        // 绘制人脸边界框 - 使用自定义绘制方法避免遮挡
-                        if (this.trackBoundingBox && detection.boundingBox) {
-                            this.drawCustomBoundingBox(detection.boundingBox);
+                        if (this.trackBoundingBoxCheckbox.checked && bbox) {
+                            this._drawBoundingBox(bbox, idx);
                         }
 
-                        // 绘制特征点
-                        if (this.trackAllLandmarks && landmarks) {
-                            drawLandmarks(
-                                this.canvasCtx,
-                                landmarks,
-                                { color: '#FF0000', lineWidth: 1, radius: 2 }
-                            );
+                        if (this.trackAllLandmarksCheckbox.checked && landmarks.length) {
+                            drawLandmarks(ctx, landmarks, { color: '#ff4444', lineWidth: 1, radius: 2 });
                         }
 
-                        // 提取关键坐标
-                        const coordinates = this.extractKeyCoordinates(landmarks, detection.boundingBox);
+                        const coords = this._extractCoordinates(landmarks, bbox);
 
-                        outputHTML += `
-                            <div class="face-coordinates">
-                                <p><strong>人脸 ${index + 1}:</strong></p>`;
-
-                        if (this.trackBoundingBox) {
-                            outputHTML += `
-                                <p>边界框: (${coordinates.bbox.x.toFixed(2)}, ${coordinates.bbox.y.toFixed(2)})</p>
-                                <p>尺寸: ${coordinates.bbox.width.toFixed(2)} × ${coordinates.bbox.height.toFixed(2)}</p>`;
+                        outHTML += `<div style="margin-bottom:10px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02)">`;
+                        outHTML += `<div style="font-weight:700;margin-bottom:6px">人脸 ${idx + 1}</div>`;
+                        if (this.trackBoundingBoxCheckbox.checked) {
+                            outHTML += `<div>中心: (${coords.bbox.x.toFixed(1)}, ${coords.bbox.y.toFixed(1)})</div>`;
+                            outHTML += `<div>尺寸: ${coords.bbox.width.toFixed(1)} × ${coords.bbox.height.toFixed(1)}</div>`;
+                        }
+                        if (this.trackPupilsCheckbox.checked || this.trackAllLandmarksCheckbox.checked) {
+                            outHTML += `<div>右眼: (${coords.rightEye.x.toFixed(1)}, ${coords.rightEye.y.toFixed(1)})</div>`;
+                            outHTML += `<div>左眼: (${coords.leftEye.x.toFixed(1)}, ${coords.leftEye.y.toFixed(1)})</div>`;
+                        }
+                        if (this.trackPupilsCheckbox.checked) {
+                            const p = this._calculatePupilOffset(coords);
+                            outHTML += `<div>瞳孔相对位置: H ${p.horizontal.toFixed(2)}, V ${p.vertical.toFixed(2)}</div>`;
                         }
 
-                        if (this.trackPupils || this.trackAllLandmarks) {
-                            outputHTML += `
-                                <p>右眼: (${coordinates.rightEye.x.toFixed(2)}, ${coordinates.rightEye.y.toFixed(2)})</p>
-                                <p>左眼: (${coordinates.leftEye.x.toFixed(2)}, ${coordinates.leftEye.y.toFixed(2)})</p>`;
+                        outHTML += `</div>`;
 
-                            // 计算瞳孔相对位置（相对于眼睛区域）
-                            if (this.trackPupils) {
-                                const pupilOffset = this.calculatePupilOffset(coordinates);
-                                outputHTML += `
-                                <p>瞳孔相对位置: 水平 ${pupilOffset.horizontal.toFixed(2)}, 垂直 ${pupilOffset.vertical.toFixed(2)}</p>`;
-                            }
-                        }
-
-                        if (this.trackAllLandmarks) {
-                            outputHTML += `
-                                <p>鼻子: (${coordinates.nose.x.toFixed(2)}, ${coordinates.nose.y.toFixed(2)})</p>
-                                <p>嘴巴: (${coordinates.mouth.x.toFixed(2)}, ${coordinates.mouth.y.toFixed(2)})</p>
-                                <p>右耳: (${coordinates.rightEar.x.toFixed(2)}, ${coordinates.rightEar.y.toFixed(2)})</p>
-                                <p>左耳: (${coordinates.leftEar.x.toFixed(2)}, ${coordinates.leftEar.y.toFixed(2)})</p>`;
-                        }
-
-                        outputHTML += `
-                            </div>
-                            <hr>`;
-
-                        // 发送坐标到ESP32
-                        if (this.isConnected) {
-                            this.sendCoordinatesToESP32(coordinates);
-                        }
+                        // 如果已连接 ESP，发送坐标
+                        if (this.isConnected) { this._sendCoordinatesToESP(coords); }
                     });
                 } else {
-                    outputHTML = '<p>未检测到人脸</p>';
+                    outHTML = '<p>未检测到人脸</p>';
                 }
 
-                this.coordinatesOutput.innerHTML = outputHTML;
-                this.canvasCtx.restore();
+                this.coordinatesOutput.innerHTML = outHTML;
+                ctx.restore();
             }
 
-            // 计算瞳孔相对位置（相对于眼睛区域）
-            calculatePupilOffset(coordinates) {
-                // 假设眼睛区域为边界框的上半部分
-                const eyeRegionWidth = coordinates.bbox.width;
-                const eyeRegionHeight = coordinates.bbox.height / 2;
-                const eyeRegionTop = coordinates.bbox.y - coordinates.bbox.height / 2;
-
-                // 计算右眼相对位置
-                const rightEyeX = coordinates.rightEye.x - (coordinates.bbox.x - coordinates.bbox.width / 2);
-                const rightEyeY = coordinates.rightEye.y - eyeRegionTop;
-
-                // 计算左眼相对位置
-                const leftEyeX = coordinates.leftEye.x - (coordinates.bbox.x - coordinates.bbox.width / 2);
-                const leftEyeY = coordinates.leftEye.y - eyeRegionTop;
-
-                // 计算平均值
-                const avgX = (rightEyeX + leftEyeX) / 2;
-                const avgY = (rightEyeY + leftEyeY) / 2;
-
-                // 转换为相对位置（0-1）
-                const horizontal = avgX / eyeRegionWidth;
-                const vertical = avgY / eyeRegionHeight;
-
-                return {
-                    horizontal: Math.max(0, Math.min(1, horizontal)),
-                    vertical: Math.max(0, Math.min(1, vertical))
-                };
-            }
-
-            // 自定义绘制边界框，避免遮挡人脸
-            drawCustomBoundingBox(boundingBox) {
+            _drawBoundingBox(bbox, idx) {
                 const ctx = this.canvasCtx;
-                const width = this.canvasElement.width;
-                const height = this.canvasElement.height;
+                const w = this.canvasElement.width, h = this.canvasElement.height;
+                const x = bbox.xCenter * w - (bbox.width * w) / 2;
+                const y = bbox.yCenter * h - (bbox.height * h) / 2;
+                const bw = bbox.width * w, bh = bbox.height * h;
 
-                // 计算边界框的实际像素坐标
-                const x = boundingBox.xCenter * width - boundingBox.width * width / 2;
-                const y = boundingBox.yCenter * height - boundingBox.height * height / 2;
-                const w = boundingBox.width * width;
-                const h = boundingBox.height * height;
-
-                // 设置样式
-                ctx.strokeStyle = '#00FF00';
+                ctx.save();
+                ctx.strokeStyle = 'rgba(30,120,90,0.95)';
                 ctx.lineWidth = 3;
-                ctx.setLineDash([5, 5]); // 虚线效果
+                ctx.setLineDash([6, 6]);
+                ctx.strokeRect(x, y, bw, bh);
+                ctx.setLineDash([]);
 
-                // 绘制边界框
-                ctx.strokeRect(x, y, w, h);
-
-                // 绘制四个角的标记
-                ctx.setLineDash([]); // 取消虚线
-                ctx.lineWidth = 2;
-
-                // 左上角
-                ctx.beginPath();
-                ctx.moveTo(x, y);
-                ctx.lineTo(x + 15, y);
-                ctx.moveTo(x, y);
-                ctx.lineTo(x, y + 15);
+                // 四角装饰
+                ctx.beginPath(); ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+                // TL
+                ctx.moveTo(x, y + 12); ctx.lineTo(x, y); ctx.lineTo(x + 12, y);
+                // TR
+                ctx.moveTo(x + bw - 12, y); ctx.lineTo(x + bw, y); ctx.lineTo(x + bw, y + 12);
+                // BL
+                ctx.moveTo(x, y + bh - 12); ctx.lineTo(x, y + bh); ctx.lineTo(x + 12, y + bh);
+                // BR
+                ctx.moveTo(x + bw - 12, y + bh); ctx.lineTo(x + bw, y + bh); ctx.lineTo(x + bw, y + bh - 12);
                 ctx.stroke();
-
-                // 右上角
-                ctx.beginPath();
-                ctx.moveTo(x + w, y);
-                ctx.lineTo(x + w - 15, y);
-                ctx.moveTo(x + w, y);
-                ctx.lineTo(x + w, y + 15);
-                ctx.stroke();
-
-                // 左下角
-                ctx.beginPath();
-                ctx.moveTo(x, y + h);
-                ctx.lineTo(x + 15, y + h);
-                ctx.moveTo(x, y + h);
-                ctx.lineTo(x, y + h - 15);
-                ctx.stroke();
-
-                // 右下角
-                ctx.beginPath();
-                ctx.moveTo(x + w, y + h);
-                ctx.lineTo(x + w - 15, y + h);
-                ctx.moveTo(x + w, y + h);
-                ctx.lineTo(x + w, y + h - 15);
-                ctx.stroke();
+                ctx.restore();
             }
 
-            extractKeyCoordinates(landmarks, boundingBox) {
-                // MediaPipe人脸特征点索引
-                const FACE_LANDMARKS = {
-                    RIGHT_EYE: 0,      // 右眼
-                    LEFT_EYE: 1,       // 左眼
-                    NOSE_TIP: 2,       // 鼻尖
-                    MOUTH_CENTER: 3,   // 嘴巴中心
-                    RIGHT_EAR: 4,      // 右耳
-                    LEFT_EAR: 5        // 左耳
-                };
+            _extractCoordinates(landmarks, bbox) {
+                const w = this.canvasElement.width, h = this.canvasElement.height;
+                const defaultPt = { x: 0, y: 0 };
 
-                // 默认值，防止未检测到特征点时出错
-                const defaultCoord = { x: 0, y: 0 };
-
+                const mapIdx = (i) => (landmarks && landmarks[i]) ? { x: landmarks[i].x * w, y: landmarks[i].y * h } : defaultPt;
+                // 注意：face_detection 返回的 landmarks 索引和 face_mesh 不同；这里尝试用通用点
                 return {
                     bbox: {
-                        x: boundingBox ? boundingBox.xCenter * this.canvasElement.width : 0,
-                        y: boundingBox ? boundingBox.yCenter * this.canvasElement.height : 0,
-                        width: boundingBox ? boundingBox.width * this.canvasElement.width : 0,
-                        height: boundingBox ? boundingBox.height * this.canvasElement.height : 0
+                        x: bbox ? bbox.xCenter * w : 0,
+                        y: bbox ? bbox.yCenter * h : 0,
+                        width: bbox ? bbox.width * w : 0,
+                        height: bbox ? bbox.height * h : 0
                     },
-                    rightEye: {
-                        x: landmarks && landmarks[FACE_LANDMARKS.RIGHT_EYE] ?
-                            landmarks[FACE_LANDMARKS.RIGHT_EYE].x * this.canvasElement.width : 0,
-                        y: landmarks && landmarks[FACE_LANDMARKS.RIGHT_EYE] ?
-                            landmarks[FACE_LANDMARKS.RIGHT_EYE].y * this.canvasElement.height : 0
-                    },
-                    leftEye: {
-                        x: landmarks && landmarks[FACE_LANDMARKS.LEFT_EYE] ?
-                            landmarks[FACE_LANDMARKS.LEFT_EYE].x * this.canvasElement.width : 0,
-                        y: landmarks && landmarks[FACE_LANDMARKS.LEFT_EYE] ?
-                            landmarks[FACE_LANDMARKS.LEFT_EYE].y * this.canvasElement.height : 0
-                    },
-                    nose: {
-                        x: landmarks && landmarks[FACE_LANDMARKS.NOSE_TIP] ?
-                            landmarks[FACE_LANDMARKS.NOSE_TIP].x * this.canvasElement.width : 0,
-                        y: landmarks && landmarks[FACE_LANDMARKS.NOSE_TIP] ?
-                            landmarks[FACE_LANDMARKS.NOSE_TIP].y * this.canvasElement.height : 0
-                    },
-                    mouth: {
-                        x: landmarks && landmarks[FACE_LANDMARKS.MOUTH_CENTER] ?
-                            landmarks[FACE_LANDMARKS.MOUTH_CENTER].x * this.canvasElement.width : 0,
-                        y: landmarks && landmarks[FACE_LANDMARKS.MOUTH_CENTER] ?
-                            landmarks[FACE_LANDMARKS.MOUTH_CENTER].y * this.canvasElement.height : 0
-                    },
-                    rightEar: {
-                        x: landmarks && landmarks[FACE_LANDMARKS.RIGHT_EAR] ?
-                            landmarks[FACE_LANDMARKS.RIGHT_EAR].x * this.canvasElement.width : 0,
-                        y: landmarks && landmarks[FACE_LANDMARKS.RIGHT_EAR] ?
-                            landmarks[FACE_LANDMARKS.RIGHT_EAR].y * this.canvasElement.height : 0
-                    },
-                    leftEar: {
-                        x: landmarks && landmarks[FACE_LANDMARKS.LEFT_EAR] ?
-                            landmarks[FACE_LANDMARKS.LEFT_EAR].x * this.canvasElement.width : 0,
-                        y: landmarks && landmarks[FACE_LANDMARKS.LEFT_EAR] ?
-                            landmarks[FACE_LANDMARKS.LEFT_EAR].y * this.canvasElement.height : 0
-                    }
+                    rightEye: mapIdx(0),
+                    leftEye: mapIdx(1),
+                    nose: mapIdx(2),
+                    mouth: mapIdx(3),
+                    rightEar: mapIdx(4),
+                    leftEar: mapIdx(5)
                 };
+            }
+
+            _calculatePupilOffset(coords) {
+                const eyeRegionWidth = coords.bbox.width || 1;
+                const eyeRegionHeight = (coords.bbox.height || 1) / 2;
+                const eyeRegionLeft = coords.bbox.x - (coords.bbox.width / 2);
+                const eyeRegionTop = coords.bbox.y - (coords.bbox.height / 2);
+
+                const rightEyeX = coords.rightEye.x - eyeRegionLeft;
+                const rightEyeY = coords.rightEye.y - eyeRegionTop;
+                const leftEyeX = coords.leftEye.x - eyeRegionLeft;
+                const leftEyeY = coords.leftEye.y - eyeRegionTop;
+
+                const avgX = (rightEyeX + leftEyeX) / 2;
+                const avgY = (rightEyeY + leftEyeY) / 2;
+                return { horizontal: Math.max(0, Math.min(1, avgX / eyeRegionWidth)), vertical: Math.max(0, Math.min(1, avgY / eyeRegionHeight)) };
             }
 
             connectToESP32() {
-                // 这里需要替换为你的ESP32的IP地址
-                const esp32IP = prompt('请输入ESP32的IP地址:', '192.168.1.100');
-
-                if (!esp32IP) return;
-
+                const ip = prompt('请输入 ESP32 的 IP 地址：', '192.168.1.100');
+                if (!ip) return;
+                if (this.wsConnection) this.wsConnection.close();
                 try {
-                    // 如果已有连接，先关闭
-                    if (this.wsConnection) {
-                        this.wsConnection.close();
-                    }
-
-                    this.wsConnection = new WebSocket(`ws://${esp32IP}:81`);
-
-                    this.wsConnection.onopen = () => {
-                        this.isConnected = true;
-                        this.connectionStatus.textContent = 'ESP32: 已连接';
-                        this.connectBtn.textContent = '断开连接';
-                        this.connectBtn.style.background = 'rgba(76, 175, 80, 0.7)';
-                        console.log('ESP32连接成功');
-                    };
-
-                    this.wsConnection.onclose = () => {
-                        this.isConnected = false;
-                        this.connectionStatus.textContent = 'ESP32: 未连接';
-                        this.connectBtn.textContent = '连接ESP32';
-                        this.connectBtn.style.background = 'rgba(33, 150, 243, 0.7)';
-                        console.log('ESP32连接已关闭');
-                    };
-
-                    this.wsConnection.onerror = (error) => {
-                        console.error('WebSocket连接错误:', error);
-                        alert('连接ESP32失败，请检查IP地址和网络连接');
-                    };
-
-                } catch (error) {
-                    console.error('创建WebSocket连接失败:', error);
-                    alert('连接失败: ' + error.message);
-                }
+                    this.wsConnection = new WebSocket(`ws://${ip}:81`);
+                    this.wsConnection.onopen = () => { this.isConnected = true; this.connectionStatus.textContent = 'ESP32: 已连接'; this.connectBtn.textContent = '断开'; this.connectBtn.classList.add('connected'); };
+                    this.wsConnection.onclose = () => { this.isConnected = false; this.connectionStatus.textContent = 'ESP32: 未连接'; this.connectBtn.textContent = '连接 ESP32'; };
+                    this.wsConnection.onerror = (e) => { console.warn('WS error', e); alert('连接失败，请检查 IP 与网络'); };
+                } catch (e) { alert('连接异常：' + e.message); }
             }
 
-            sendCoordinatesToESP32(coordinates) {
+            _sendCoordinatesToESP(coords) {
                 if (this.wsConnection && this.wsConnection.readyState === WebSocket.OPEN) {
-                    const data = {
-                        type: 'face_coordinates',
-                        timestamp: Date.now(),
-                        coordinates: coordinates,
-                        trackingOptions: {
-                            boundingBox: this.trackBoundingBox,
-                            pupils: this.trackPupils,
-                            allLandmarks: this.trackAllLandmarks
-                        }
-                    };
-
+                    const data = { type: 'face_coordinates', timestamp: Date.now(), coords };
                     this.wsConnection.send(JSON.stringify(data));
                 }
             }
         }
 
-        // 页面加载完成后初始化应用
-        document.addEventListener('DOMContentLoaded', () => {
-            new FaceDetectionApp();
-        });
+        document.addEventListener('DOMContentLoaded', () => { window.app = new FaceDetectionApp(); });
     </script>
 </body>
 
